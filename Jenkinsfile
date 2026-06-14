@@ -16,7 +16,8 @@ pipeline {
 
         stage('Run Selenium Tests') {
             steps {
-                bat '"C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest -v --alluredir=allure-results'
+                // Thêm --clean-alluredir để tự động dọn sạch kết quả cũ của lượt build trước
+                bat '"C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest -v --alluredir=allure-results --clean-alluredir'
             }
         }
 
