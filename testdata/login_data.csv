@@ -1,5 +1,5 @@
 username,password,expected
-standard_user,abc123,pass
+standard_user,secret_sauce,pass
 standard_user,wrong_password,fail
 wrong_user,secret_sauce,fail
 ,secret_sauce,fail
