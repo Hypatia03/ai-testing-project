@@ -2,6 +2,10 @@ pipeline {
 
     agent any
 
+    tools {
+        allure 'allure'
+    }
+
     stages {
 
         stage('Install Dependencies') {
@@ -12,9 +16,19 @@ pipeline {
 
         stage('Run Selenium Tests') {
             steps {
-                bat '"C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest -v'
+                bat '"C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" -m pytest -v --alluredir=allure-results'
             }
         }
 
+    }
+
+    post {
+        always {
+            allure(
+                includeProperties: false,
+                jdk: '',
+                results: [[path: 'allure-results']]
+            )
+        }
     }
 }
