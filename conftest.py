@@ -1,21 +1,16 @@
 import pytest
+from datetime import datetime
 
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item):
+    outcome = yield
+    report = outcome.get_result()
 
+    if report.when == "call" and report.failed:
+        driver = item.funcargs["driver"]
 
-@pytest.fixture
-def driver():
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    driver = webdriver.Chrome(
-        service=Service(
-            ChromeDriverManager().install()
+        driver.save_screenshot(
+            f"screenshots/fail_{timestamp}.png"
         )
-    )
-
-    driver.maximize_window()
-
-    yield driver
-
-    driver.quit()
