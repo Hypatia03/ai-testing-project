@@ -1,5 +1,6 @@
 import os
 import pytest
+import allure
 from datetime import datetime
 from selenium import webdriver
 
@@ -47,6 +48,13 @@ def pytest_runtest_makereport(item):
             
             # Ra lệnh cho trình duyệt chụp ảnh màn hình và lưu lại
             driver.save_screenshot(screenshot_path)
+            
+            allure.attach.file(
+                screenshot_path,
+                name="Failure Screenshot",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
             print(f"\n[INFO] Đã chụp ảnh màn hình lỗi tại: {screenshot_path}")
             
         except Exception as e:
