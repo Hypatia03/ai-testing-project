@@ -1,0 +1,6 @@
+
+After Login:
+https://www.saucedemo.com/inventory.html
+
+After Open Cart:
+https://www.saucedemo.com/cart.html

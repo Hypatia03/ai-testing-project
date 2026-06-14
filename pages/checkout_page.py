@@ -17,31 +17,38 @@ class CheckoutPage:
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
 
+    def _fill_react_input(self, element_locator, value):
+        element = self.wait.until(EC.element_to_be_clickable(element_locator))
+        element.click()
+        self.driver.execute_script(
+            """
+            var el = arguments[0];
+            var val = arguments[1];
+            var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+            setter.call(el, val);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        """,
+            element,
+            value,
+        )
+
     def fill_information(self, first_name, last_name, zip_code):
 
-        first_box = self.wait.until(EC.presence_of_element_located(self.FIRST_NAME))
-        self.driver.execute_script("arguments[0].value = arguments[1];", first_box, first_name)
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", first_box)
-
-        last_box = self.wait.until(EC.presence_of_element_located(self.LAST_NAME))
-        self.driver.execute_script("arguments[0].value = arguments[1];", last_box, last_name)
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", last_box)
-
-        zip_box = self.wait.until(EC.presence_of_element_located(self.ZIP_CODE))
-        self.driver.execute_script("arguments[0].value = arguments[1];", zip_box, zip_code)
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", zip_box)
-
+        self._fill_react_input(self.FIRST_NAME, first_name)
+        self._fill_react_input(self.LAST_NAME, last_name)
+        self._fill_react_input(self.ZIP_CODE, zip_code)
         return self
 
     def continue_checkout(self):
 
-        button = self.wait.until(EC.presence_of_element_located(self.CONTINUE_BUTTON))
+        button = self.wait.until(EC.element_to_be_clickable(self.CONTINUE_BUTTON))
         self.driver.execute_script("arguments[0].click();", button)
         return self
 
     def finish_checkout(self):
 
-        button = self.wait.until(EC.presence_of_element_located(self.FINISH_BUTTON))
+        button = self.wait.until(EC.element_to_be_clickable(self.FINISH_BUTTON))
         self.driver.execute_script("arguments[0].click();", button)
         return self
 
@@ -50,4 +57,3 @@ class CheckoutPage:
         return self.wait.until(
             EC.visibility_of_element_located(self.COMPLETE_HEADER)
         ).text
-        
