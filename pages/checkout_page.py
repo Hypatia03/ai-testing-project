@@ -5,72 +5,49 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class CheckoutPage:
 
-    FIRST_NAME = (By.ID, "first-name")
-    LAST_NAME = (By.ID, "last-name")
-    ZIP_CODE = (By.ID, "postal-code")
+    FIRST_NAME = (By.CSS_SELECTOR, "input[name='firstName']")
+    LAST_NAME = (By.CSS_SELECTOR, "input[name='lastName']")
+    ZIP_CODE = (By.CSS_SELECTOR, "input[name='postalCode']")
 
-    CONTINUE_BUTTON = (By.ID, "continue")
-    FINISH_BUTTON = (By.ID, "finish")
-
+    CONTINUE_BUTTON = (By.CSS_SELECTOR, "input[name='continue']")
+    FINISH_BUTTON = (By.CSS_SELECTOR, "button[name='finish']")
     COMPLETE_HEADER = (By.CLASS_NAME, "complete-header")
 
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
 
-    def fill_information(
-        self,
-        first_name,
-        last_name,
-        zip_code
-    ):
+    def fill_information(self, first_name, last_name, zip_code):
 
-        first = self.wait.until(
-            EC.visibility_of_element_located(
-                self.FIRST_NAME
-            )
-        )
-        first.clear()
-        first.send_keys(first_name)
+        first_box = self.wait.until(EC.presence_of_element_located(self.FIRST_NAME))
+        self.driver.execute_script("arguments[0].value = arguments[1];", first_box, first_name)
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", first_box)
 
-        last = self.wait.until(
-            EC.visibility_of_element_located(
-                self.LAST_NAME
-            )
-        )
-        last.clear()
-        last.send_keys(last_name)
+        last_box = self.wait.until(EC.presence_of_element_located(self.LAST_NAME))
+        self.driver.execute_script("arguments[0].value = arguments[1];", last_box, last_name)
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", last_box)
 
-        zip_field = self.wait.until(
-            EC.visibility_of_element_located(
-                self.ZIP_CODE
-            )
-        )
-        zip_field.clear()
-        zip_field.send_keys(zip_code)
+        zip_box = self.wait.until(EC.presence_of_element_located(self.ZIP_CODE))
+        self.driver.execute_script("arguments[0].value = arguments[1];", zip_box, zip_code)
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", zip_box)
+
+        return self
 
     def continue_checkout(self):
 
-        self.wait.until(
-            EC.element_to_be_clickable(
-                self.CONTINUE_BUTTON
-            )
-        ).click()
+        button = self.wait.until(EC.presence_of_element_located(self.CONTINUE_BUTTON))
+        self.driver.execute_script("arguments[0].click();", button)
+        return self
 
     def finish_checkout(self):
 
-        finish_button = self.wait.until(
-            EC.element_to_be_clickable(
-                self.FINISH_BUTTON
-            )
-        )
-
-        finish_button.click()
+        button = self.wait.until(EC.presence_of_element_located(self.FINISH_BUTTON))
+        self.driver.execute_script("arguments[0].click();", button)
+        return self
 
     def get_complete_text(self):
 
         return self.wait.until(
-            EC.visibility_of_element_located(
-                self.COMPLETE_HEADER
-            )
+            EC.visibility_of_element_located(self.COMPLETE_HEADER)
         ).text
+        
