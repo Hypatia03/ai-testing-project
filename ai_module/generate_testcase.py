@@ -1,31 +1,71 @@
-from openai import OpenAI
+import os
 
-client = OpenAI(
-    api_key="YOUR_API_KEY"
-)
+from ai_module.ollama_client import ask_ai
 
-prompt = """
-Generate software testing test cases
-for SauceDemo Login Page.
+PROMPT = """
+You are a Senior QA Engineer.
 
-Return:
-1. Test Case ID
-2. Title
-3. Steps
-4. Expected Result
-5. Priority
+Generate test cases ONLY for SauceDemo Login.
+
+Website:
+https://www.saucedemo.com
+
+Page contains:
+
+- Username textbox
+- Password textbox
+- Login button
+
+Valid account:
+
+Username: standard_user
+Password: secret_sauce
+
+Generate exactly 10 UI test cases.
+
+Include:
+
+1. Valid login
+2. Invalid username
+3. Invalid password
+4. Empty username
+5. Empty password
+6. Empty username and password
+7. Locked user
+8. Problem user
+9. Performance glitch user
+10. Logout after login
+
+Output ONLY markdown table.
+
+Columns:
+
+| Test Case ID |
+| Title |
+| Steps |
+| Expected Result |
+| Priority |
+
+No explanation.
 """
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ]
-)
+def generate_testcases():
 
-print(
-    response.choices[0].message.content
-)
+    result = ask_ai(PROMPT)
+
+    os.makedirs("reports", exist_ok=True)
+
+    with open(
+        "reports/generated_testcases.md",
+        "w",
+        encoding="utf-8"
+    ) as f:
+        f.write(result)
+
+    print(
+        "Generated reports/generated_testcases.md"
+    )
+
+
+if __name__ == "__main__":
+    generate_testcases()

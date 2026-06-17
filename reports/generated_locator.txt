@@ -1,0 +1,14 @@
+Best XPath:
+```
+//input[@id='login-button']
+```
+
+Best CSS:
+```
+input[type="submit"].submit-button.btn_action[value="Login"]
+```
+
+Most Stable Locator:
+```
+input#login-button
+```

@@ -1,61 +1,133 @@
 import os
 import pytest
 import allure
+
 from datetime import datetime
 from selenium import webdriver
 
-# ====================================================================
-# 1. FIXTURE KHỞI TẠO TRÌNH DUYỆT (Để sửa lỗi "fixture 'driver' not found")
-# ====================================================================
+from ai_module.analyze_error import analyze_error
+
+
 @pytest.fixture(scope="function")
 def driver():
+
     options = webdriver.ChromeOptions()
-    
-    # Kết nối đến Selenium Grid đang chạy ngầm của bạn
-    grid_url = "http://localhost:4444/wd/hub"
-    
-    # Khởi tạo driver từ xa thông qua Grid
+
     driver = webdriver.Remote(
-        command_executor=grid_url,
+        command_executor="http://localhost:4444/wd/hub",
         options=options
     )
-    
-    yield driver  # Cung cấp driver này cho các bài test sử dụng
-    
-    driver.quit() # Tắt trình duyệt sau khi test xong để giải phóng bộ nhớ
 
-# ====================================================================
-# 2. HOOK TỰ ĐỘNG CHỤP ẢNH MÀN HÌNH KHI BÀI TEST BỊ LỖI (FAILED)
-# ====================================================================
+    driver.maximize_window()
+
+    yield driver
+
+    driver.quit()
+
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item):
+
     outcome = yield
     report = outcome.get_result()
 
-    # Kiểm tra nếu bài test chạy xong (when == "call") và kết quả là THẤT BẠI (failed)
     if report.when == "call" and report.failed:
+
         try:
-            # Lấy đối tượng driver đang chạy trong bài test đó ra để chụp ảnh
-            driver = item.funcargs["driver"]
-            
-            # Tự động tạo thư mục 'screenshots' nếu trên máy chưa có
-            if not os.path.exists("screenshots"):
-                os.makedirs("screenshots")
-                
-            # Tạo tên file ảnh theo thời gian: năm tháng ngày_giờ phút giây
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            screenshot_path = f"screenshots/fail_{item.name}_{timestamp}.png"
-            
-            # Ra lệnh cho trình duyệt chụp ảnh màn hình và lưu lại
-            driver.save_screenshot(screenshot_path)
-            
+
+            driver = item.funcargs.get("driver")
+
+            if driver is None:
+                return
+
+            os.makedirs(
+                "screenshots",
+                exist_ok=True
+            )
+
+            os.makedirs(
+                "logs",
+                exist_ok=True
+            )
+
+            os.makedirs(
+                "reports",
+                exist_ok=True
+            )
+
+            timestamp = datetime.now().strftime(
+                "%Y%m%d_%H%M%S"
+            )
+
+            screenshot_path = (
+                f"screenshots/"
+                f"fail_{item.name}_{timestamp}.png"
+            )
+
+            driver.save_screenshot(
+                screenshot_path
+            )
+
             allure.attach.file(
                 screenshot_path,
                 name="Failure Screenshot",
                 attachment_type=allure.attachment_type.PNG
             )
-            
-            print(f"\n[INFO] Đã chụp ảnh màn hình lỗi tại: {screenshot_path}")
-            
+
+            print(
+                f"\n[INFO] Screenshot saved: {screenshot_path}"
+            )
+
+            # ==========================
+            # Save Error Log
+            # ==========================
+
+            error_text = str(
+                report.longrepr
+            )
+
+            with open(
+                "logs/error.log",
+                "w",
+                encoding="utf-8"
+            ) as f:
+
+                f.write(error_text)
+
+            print(
+                "[INFO] Error log saved."
+            )
+
+            # ==========================
+            # AI Analysis
+            # ==========================
+
+            try:
+
+                ai_result = analyze_error(
+                    error_text
+                )
+
+                with open(
+                    "reports/ai_error_analysis.txt",
+                    "w",
+                    encoding="utf-8"
+                ) as f:
+
+                    f.write(ai_result)
+
+                print(
+                    "[INFO] AI analysis generated."
+                )
+
+            except Exception as ai_error:
+
+                print(
+                    f"[WARNING] AI Analysis Failed: {ai_error}"
+                )
+
         except Exception as e:
-            print(f"\n[ERROR] Không thể chụp ảnh màn hình: {e}")
+
+            print(
+                f"\n[ERROR] Screenshot failed: {e}"
+            )

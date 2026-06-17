@@ -1,16 +1,12 @@
 from selenium import webdriver
 
-GRID_URL = "http://localhost:4444/wd/hub"
 
-def create_driver():
+def get_driver():
 
-    options = webdriver.ChromeOptions()
-
-    driver = webdriver.Remote(
-        command_executor=GRID_URL,
-        options=options
-    )
+    driver = webdriver.Chrome()
 
     driver.maximize_window()
+
+    driver.implicitly_wait(10)
 
     return driver

@@ -1,0 +1,33 @@
+Application: SauceDemo
+
+Login Feature
+
+Valid Users:
+
+standard_user
+- Login successfully
+
+locked_out_user
+- Cannot login
+- Error:
+  Epic sadface: Sorry, this user has been locked out.
+
+problem_user
+- Login successfully
+- Some UI elements may behave incorrectly after login
+
+performance_glitch_user
+- Login successfully
+- Pages load slower than normal
+
+Password for all users:
+secret_sauce
+
+Login Page:
+https://www.saucedemo.com
+
+Expected behavior:
+- Valid user + correct password => Login success
+- Invalid username => Login fail
+- Invalid password => Login fail
+- Empty fields => Validation error

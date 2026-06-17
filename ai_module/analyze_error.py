@@ -1,36 +1,71 @@
-import requests
+import os
 
-error_log = """
-selenium.common.exceptions.NoSuchElementException:
-Unable to locate element:
-{"method":"css selector","selector":"#login-button"}
+from ai_module.ollama_client import ask_ai
+
+
+def analyze_error(error_text):
+
+    prompt = f"""
+Bạn là Senior QA Automation Engineer.
+
+Hãy phân tích lỗi Selenium sau đây.
+
+Trả lời bằng tiếng Việt.
+
+Format:
+
+=== PHÂN TÍCH LỖI ===
+
+Nguyên nhân:
+...
+
+Mức độ nghiêm trọng:
+...
+
+Cách khắc phục:
+...
+
+Locator đề xuất:
+...
+
+Code fix đề xuất:
+...
+
+Lỗi:
+
+{error_text}
 """
 
-prompt = f"""
-You are a Selenium Automation Expert.
+    try:
 
-Analyze this Selenium error.
+        result = ask_ai(prompt)
 
-Error:
+    except Exception as e:
 
-{error_log}
+        result = f"""
+=== PHÂN TÍCH LỖI ===
 
-Explain:
+Không thể gọi AI.
 
-1. Root cause
-2. Possible fixes
-3. Better locator suggestion
+Chi tiết:
 
-Output in clear bullet points.
+{str(e)}
+
+Lỗi gốc:
+
+{error_text}
 """
 
-response = requests.post(
-    "http://localhost:11434/api/generate",
-    json={
-        "model": "deepseek-r1:1.5b",
-        "prompt": prompt,
-        "stream": False
-    }
-)
+    os.makedirs(
+        "reports",
+        exist_ok=True
+    )
 
-print(response.json()["response"])
+    with open(
+        "reports/error_analysis.txt",
+        "w",
+        encoding="utf-8"
+    ) as f:
+        f.write(result)
+
+    return result

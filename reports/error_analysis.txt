@@ -1,0 +1,55 @@
+=== PHÂN TÍCH LỖI ===
+
+Nguyên nhân:
+Lỗi NoSuchElementException thường xảy ra khi Selenium không tìm thấy bất kỳ element nào trong DOM của trang web mà bạn đang kiểm tra. Trong trường hợp này, lỗi xuất hiện do Selenium không thể tìm thấy element có id "login-btn". Có một số nguyên nhân có thể dẫn đến lỗi này:
+
+1. Element có id "login-btn" không tồn tại trên trang web.
+2. ID của element không chính xác hoặc đã thay đổi.
+3. Element được tạo bởi JavaScript và Selenium chưa đủ thời gian để load hoàn toàn trước khi tìm kiếm.
+
+Mức độ nghiêm trọng:
+Trung bình. Lỗi này thường xảy ra trong các trường hợp nhỏ, nhưng có thể gây gián đoạn nếu không được khắc phục kịp thời.
+
+Cách khắc phục:
+1. Kiểm tra lại ID của element và đảm bảo rằng nó chính xác và tồn tại trên trang web.
+2. Sử dụng locator khác như XPath hoặc CSS selector để tìm element.
+3. Đảm bảo Selenium đủ thời gian để load hoàn toàn trang web trước khi thực hiện các thao tác kiểm tra.
+
+Locator đề xuất:
+- XPath: `//input[@id='login-btn']`
+- CSS Selector: `#login-btn`
+
+Code fix đề xuất:
+
+```python
+from selenium.webdriver.common.by import By
+
+def login(self, username, password):
+    # Sử dụng locator khác nếu CSS selector không hoạt động
+    login_button = self.driver.find_element(By.XPATH, "//input[@id='login-btn']")
+    
+    if login_button:
+        login_button.click()
+        
+        # Thao tác tiếp theo sau khi click vào button
+        # ...
+```
+
+LOG:
+
+selenium.common.exceptions.NoSuchElementException:
+Message:
+no such element: Unable to locate element:
+
+{"method":"css selector","selector":"#login-btn"}
+
+Session info:
+chrome=137.0.7151.104
+
+Stacktrace:
+WebDriver.findElement()
+LoginPage.login()
+test_login.py line 25
+```
+
+Đây là một ví dụ về cách khắc phục lỗi bằng cách sử dụng locator khác (XPath trong trường hợp này). Bạn nên kiểm tra và sửa đổi locator dựa trên thực tế của trang web mà bạn đang kiểm tra.

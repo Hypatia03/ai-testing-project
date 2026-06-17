@@ -1,0 +1,13 @@
+selenium.common.exceptions.NoSuchElementException:
+Message:
+no such element: Unable to locate element:
+
+{"method":"css selector","selector":"#login-btn"}
+
+Session info:
+chrome=137.0.7151.104
+
+Stacktrace:
+WebDriver.findElement()
+LoginPage.login()
+test_login.py line 25
